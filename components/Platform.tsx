@@ -1,8 +1,8 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent, ReactNode } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useInView, useReducedMotion } from 'framer-motion'
 import { Check, Radar, ScanSearch, ShieldPlus, Zap } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { DetectDiagram, HardenDiagram, InvestigateDiagram, RespondDiagram } from './PlatformDiagrams'
@@ -78,22 +78,39 @@ const tabs: Tab[] = [
   },
 ]
 
+const AUTO_MS = 6500
+
 export default function Platform() {
   const [active, setActive] = useState(0)
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
   const tab = tabs[active]
 
+  // Auto-advance while on screen; stops for good once the visitor picks a tab.
+  const sectionRef = useRef<HTMLElement>(null)
+  const inView = useInView(sectionRef, { margin: '-30% 0px -30% 0px' })
+  const reduce = useReducedMotion()
+  const [auto, setAuto] = useState(true)
+  const [hovered, setHovered] = useState(false)
+  const playing = auto && inView && !hovered && !reduce
+
+  useEffect(() => {
+    if (!playing) return
+    const timer = setTimeout(() => setActive((i) => (i + 1) % tabs.length), AUTO_MS)
+    return () => clearTimeout(timer)
+  }, [playing, active])
+
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     const delta = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0
     if (!delta) return
     e.preventDefault()
+    setAuto(false)
     const next = (active + delta + tabs.length) % tabs.length
     setActive(next)
     tabRefs.current[next]?.focus()
   }
 
   return (
-    <section id="platform" className="relative overflow-hidden border-y border-line bg-surface/50 py-24 sm:py-32">
+    <section ref={sectionRef} id="platform" className="relative overflow-hidden border-y border-line bg-surface/50 py-24 sm:py-32">
       <div className="pointer-events-none absolute left-1/2 top-0 h-[30rem] w-[60rem] -translate-x-1/2 rounded-full bg-accent/[0.07] blur-[130px]" aria-hidden="true" />
       <div className="container-x relative">
         <SectionHeading
@@ -121,7 +138,10 @@ export default function Platform() {
                 aria-selected={active === i}
                 aria-controls={`panel-${t.id}`}
                 tabIndex={active === i ? 0 : -1}
-                onClick={() => setActive(i)}
+                onClick={() => {
+                  setAuto(false)
+                  setActive(i)
+                }}
                 className={`relative flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
                   active === i ? 'text-accent-ink' : 'text-white/60 hover:text-white'
                 }`}
@@ -129,9 +149,19 @@ export default function Platform() {
                 {active === i && (
                   <motion.span
                     layoutId="tab-pill"
-                    className="absolute inset-0 rounded-full bg-accent"
-                    transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                  />
+                    className="absolute inset-0 overflow-hidden rounded-full bg-accent"
+                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                  >
+                    {playing && (
+                      <motion.span
+                        key={t.id}
+                        className="absolute inset-0 origin-left bg-black/15"
+                        initial={{ scaleX: 0 }}
+                        animate={{ scaleX: 1 }}
+                        transition={{ duration: AUTO_MS / 1000, ease: 'linear' }}
+                      />
+                    )}
+                  </motion.span>
                 )}
                 <t.icon className="relative h-4 w-4 shrink-0" aria-hidden="true" />
                 <span className="relative">{t.label}</span>
@@ -139,17 +169,21 @@ export default function Platform() {
             ))}
           </div>
 
-          <div className="glass mt-8 overflow-hidden rounded-3xl">
+          <div
+            className="glass mt-8 overflow-hidden rounded-3xl"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+          >
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={tab.id}
                 role="tabpanel"
                 id={`panel-${tab.id}`}
                 aria-labelledby={`tab-${tab.id}`}
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.28 }}
+                initial={{ opacity: 0, y: 18, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, y: -12, filter: 'blur(8px)' }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                 className="grid lg:grid-cols-2"
               >
                 <div className="p-7 sm:p-10 lg:p-12">

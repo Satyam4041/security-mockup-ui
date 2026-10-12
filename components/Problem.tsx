@@ -1,5 +1,5 @@
 import { Gauge, Network, VenetianMask } from 'lucide-react'
-import { Reveal, SectionHeading, SpotlightCard } from './ui'
+import { Reveal, SectionHeading, SpotlightCard, Wipe } from './ui'
 
 const cards = [
   {
@@ -61,10 +61,12 @@ export default function Problem() {
                 <p className="mt-8 font-display text-5xl font-semibold tracking-tight">{card.stat}</p>
                 <p className="mt-2 text-sm text-white/50">{card.statLabel}</p>
 
-                <svg viewBox="0 0 210 38" className="mt-5 h-10 w-full" preserveAspectRatio="none" aria-hidden="true">
+                <Wipe className="mt-5" delay={0.3 + i * 0.1}>
+                  <svg viewBox="0 0 210 38" className="block h-10 w-full" preserveAspectRatio="none" aria-hidden="true">
                   <path d={`${card.spark} L210 38 L0 38 Z`} fill="var(--color-danger)" opacity="0.08" />
                   <path d={card.spark} fill="none" stroke="var(--color-danger)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
-                </svg>
+                  </svg>
+                </Wipe>
 
                 <h3 className="mt-6 font-display text-xl font-semibold">{card.title}</h3>
                 <p className="mt-3 text-[0.9375rem] leading-relaxed text-white/60">{card.body}</p>

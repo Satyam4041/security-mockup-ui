@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion'
 import { ArrowUpRight, ChevronDown, Siren } from 'lucide-react'
 import { site } from '@/lib/site'
 import { nav } from './nav-data'
@@ -13,6 +13,8 @@ export default function Navbar() {
   const [mobileSection, setMobileSection] = useState<string | null>(null)
   const [scrolled, setScrolled] = useState(false)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const { scrollYProgress } = useScroll()
+  const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 30, restDelta: 0.001 })
 
   const show = (label: string) => {
     if (closeTimer.current) clearTimeout(closeTimer.current)
@@ -151,16 +153,19 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Reading progress */}
+      <motion.div className="absolute inset-x-0 -bottom-px h-px origin-left bg-accent" style={{ scaleX: progress }} aria-hidden="true" />
+
       {/* Desktop mega-menu */}
       <AnimatePresence>
         {active && (
           <motion.div
             id="mega-menu"
             key="mega"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.18 }}
+            initial={{ opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
+            animate={{ opacity: 1, clipPath: 'inset(0 0 -30% 0)' }}
+            exit={{ opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             onMouseEnter={cancelClose}
             onMouseLeave={scheduleClose}
             className="absolute inset-x-0 top-full hidden border-b border-line bg-ink shadow-[0_40px_80px_-20px_rgb(0_0_0/0.8)] lg:block"
@@ -227,6 +232,7 @@ export default function Navbar() {
           <motion.div
             id="mobile-menu"
             key="mobile"
+            data-lenis-prevent
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}

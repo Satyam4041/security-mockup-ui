@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useInView, useReducedMotion } from 'framer-motion'
 import { Check, LoaderCircle, MapPin, MoreHorizontal, ShieldAlert, UserRound } from 'lucide-react'
-import { Counter, Reveal, SectionHeading } from './ui'
+import { Counter, Reveal, SectionHeading, Tilt } from './ui'
 
 /* ---------- shared chrome ---------- */
 
@@ -332,13 +332,19 @@ export default function Showcase() {
         />
         <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           <Reveal className="h-full min-w-0">
-            <ThreatAlert />
+            <Tilt className="h-full">
+              <ThreatAlert />
+            </Tilt>
           </Reveal>
           <Reveal delay={0.12} className="h-full min-w-0">
-            <ActivityLog />
+            <Tilt className="h-full">
+              <ActivityLog />
+            </Tilt>
           </Reveal>
           <Reveal delay={0.24} className="h-full min-w-0 md:col-span-2 xl:col-span-1">
-            <TakeoverTimeline />
+            <Tilt className="h-full">
+              <TakeoverTimeline />
+            </Tilt>
           </Reveal>
         </div>
       </div>

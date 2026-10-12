@@ -89,7 +89,7 @@ export default function Pricing() {
                 <div
                   className={`relative flex h-full flex-col rounded-3xl p-7 transition-transform duration-300 hover:-translate-y-1 sm:p-9 ${
                     tier.featured
-                      ? 'border border-accent/60 bg-linear-to-b from-accent/[0.12] to-ink shadow-[0_30px_90px_-40px_var(--accent)]'
+                      ? 'beam border border-accent/40 bg-linear-to-b from-accent/[0.12] to-ink shadow-[0_30px_90px_-40px_var(--accent)]'
                       : 'glass'
                   }`}
                 >

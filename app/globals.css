@@ -10,9 +10,20 @@
   --color-line: rgb(255 255 255 / 0.09);
   --color-danger: #ff4d5e;
   --color-warn: #ffb020;
-  --font-sans: var(--f-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--f-display), var(--f-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--f-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--f-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--f-mono), ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+
+@property --beam {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* Lenis drives scrolling when active, so native smooth-scroll must stand down. */
+html.lenis {
+  scroll-behavior: auto;
 }
 
 html {
@@ -24,6 +35,7 @@ html {
 
 body {
   overflow-x: hidden;
+  letter-spacing: -0.006em;
   text-rendering: optimizeLegibility;
 }
 
@@ -63,11 +75,13 @@ body {
     font-weight: 600;
     white-space: nowrap;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
     transition:
-      transform 0.2s ease,
-      box-shadow 0.25s ease,
-      background-color 0.2s ease,
-      border-color 0.2s ease;
+      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.35s ease,
+      background-color 0.3s ease,
+      border-color 0.3s ease;
   }
   .btn:active {
     transform: scale(0.97);
@@ -79,8 +93,21 @@ body {
       0 0 0 1px color-mix(in srgb, var(--accent) 60%, transparent),
       0 8px 30px -8px color-mix(in srgb, var(--accent) 55%, transparent);
   }
+  /* Light sweep across the primary button on hover */
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.55) 50%, transparent 65%);
+    transform: translateX(-120%);
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+  .btn-primary:hover::after {
+    transform: translateX(120%);
+  }
   .btn-primary:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
     box-shadow:
       0 0 0 1px var(--accent),
       0 14px 44px -8px color-mix(in srgb, var(--accent) 75%, transparent);
@@ -112,9 +139,9 @@ body {
   /* Cursor-following glow, driven by --mx / --my set in SpotlightCard */
   .spotlight {
     transition:
-      border-color 0.3s ease,
-      transform 0.3s ease,
-      box-shadow 0.3s ease;
+      border-color 0.5s ease,
+      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.5s ease;
   }
   .spotlight::before {
     content: '';
@@ -160,9 +187,10 @@ body {
   }
 
   .eyebrow {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.16em;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--accent);
   }
@@ -171,6 +199,26 @@ body {
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+
+  /* A light that travels around the border of the element */
+  .beam::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(from var(--beam), transparent 0 70%, var(--accent) 88%, #fff 92%, transparent 100%);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: beam 6s linear infinite;
+    pointer-events: none;
+  }
+  .aurora {
+    animation: aurora 18s ease-in-out infinite alternate;
   }
 
   .marquee {
@@ -204,6 +252,22 @@ body {
   }
 }
 
+@keyframes beam {
+  to {
+    --beam: 360deg;
+  }
+}
+@keyframes aurora {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-6%, 5%, 0) scale(1.15);
+  }
+  100% {
+    transform: translate3d(5%, -4%, 0) scale(0.95);
+  }
+}
 @keyframes marquee {
   to {
     transform: translateX(-50%);

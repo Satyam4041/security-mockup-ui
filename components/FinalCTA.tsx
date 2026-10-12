@@ -7,7 +7,7 @@ export default function FinalCTA() {
     <section id="demo" className="relative py-24 sm:py-32">
       <div className="container-x">
         <Reveal>
-          <div className="relative overflow-hidden rounded-[2rem] border border-line bg-surface px-6 py-16 text-center sm:px-12 sm:py-24">
+          <div className="beam relative overflow-hidden rounded-[2rem] border border-line bg-surface px-6 py-16 text-center sm:px-12 sm:py-24">
             <div className="pointer-events-none absolute inset-0" aria-hidden="true">
               <div className="bg-grid mask-fade absolute inset-0" />
               <div className="absolute left-1/2 top-[-40%] h-[32rem] w-[48rem] -translate-x-1/2 rounded-full bg-accent/25 blur-[120px]" />

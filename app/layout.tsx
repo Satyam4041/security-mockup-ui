@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from 'next'
 import type { CSSProperties, ReactNode } from 'react'
-import { Inter, JetBrains_Mono, Sora } from 'next/font/google'
+import { Hanken_Grotesk, JetBrains_Mono } from 'next/font/google'
 import { inkFor, site } from '@/lib/site'
 import Providers from '@/components/Providers'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'], variable: '--f-inter', display: 'swap' })
-const display = Sora({ subsets: ['latin'], variable: '--f-display', display: 'swap', weight: ['500', '600', '700'] })
+// One grotesque family for headings and body, in the spirit of the reference sites.
+const sans = Hanken_Grotesk({ subsets: ['latin'], variable: '--f-sans', display: 'swap' })
 const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--f-mono', display: 'swap', weight: ['400', '500'] })
 
 export const metadata: Metadata = {
@@ -27,11 +27,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   const brand = { '--accent': site.accent, '--accent-ink': inkFor(site.accent) } as CSSProperties
 
   return (
-    <html lang="en" style={brand} className={`${inter.variable} ${display.variable} ${mono.variable}`}>
+    <html lang="en" style={brand} className={`${sans.variable} ${mono.variable}`}>
       <head>
         {/* Scroll-reveal content starts hidden; make sure it is visible without JavaScript. */}
         <noscript>
-          <style>{`[data-reveal]{opacity:1!important;transform:none!important}`}</style>
+          <style>{`[data-reveal]{opacity:1!important;transform:none!important;filter:none!important;clip-path:none!important}`}</style>
         </noscript>
       </head>
       <body className="bg-ink font-sans text-white antialiased">

@@ -20,6 +20,9 @@ npm run preview    # serve ./out locally
 Requires Node 20.9 or newer. `./out` is plain HTML/CSS/JS and can be dropped on any
 static host (Netlify, Vercel, S3, GitHub Pages, nginx).
 
+When hosting under a sub-path (for example GitHub Pages project sites), build with
+`BASE_PATH=/repo-name npm run build`.
+
 ## Rebrand it
 
 The client details in the brief were left as unfilled placeholders, so the site ships
@@ -58,7 +61,8 @@ accent colour hard-coded, so update it if you change the accent.
 - **Brand:** invented name "Noctera" and an electric lime accent, since no client details were supplied.
 - **No `/references` folder or `/assets/logo.svg` existed**, so the design follows the written direction only and uses a text-based logo with an original shield mark.
 - **The brief was cut off at section 12** ("Pricing — 3 tiers with monthly/annual"). I read that as a monthly/annual billing toggle and added a closing CTA, hotline block and footer so the page ends properly. Anything listed after that point in the original brief is not built.
-- **Fonts:** Inter (body), Sora (display) and JetBrains Mono (UI labels), self-hosted at build time through `next/font` — nothing loads from Google at runtime, but the build needs network access once to fetch them.
+- **Fonts:** Hanken Grotesk for headings and body, JetBrains Mono for product-UI labels, self-hosted at build time through `next/font` — nothing loads from Google at runtime, but the build needs network access once to fetch them. The Palo Alto Networks site that inspired the type uses TT Hoves, a commercial typeface; Hanken Grotesk is the closest free match. If the client licenses TT Hoves, swap it in `app/layout.tsx`.
+- **Motion:** inertia scrolling (Lenis, wheel/trackpad only), masked word-by-word hero headline, hero parallax and cursor tilt, 3D tilt on the dashboard cards, travelling border beams, a scroll-progress line under the navbar, and platform tabs that auto-advance until the visitor picks one.
 - **Next.js 16 / Tailwind CSS 4.** Tailwind is configured in `app/globals.css` (`@theme`), so there is no `tailwind.config` file.
 - **CTAs are placeholders:** in-page anchors, plus a `mailto:hello@example.com` on the final demo button. There is no form or backend.
 - **Pricing figures** are illustrative; annual is shown as roughly 20% below monthly.

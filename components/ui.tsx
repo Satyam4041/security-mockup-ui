@@ -2,15 +2,16 @@
 
 import { useEffect, useRef } from 'react'
 import type { MouseEvent, ReactNode } from 'react'
-import { animate, motion, useInView, useReducedMotion } from 'framer-motion'
+import { animate, motion, useInView, useMotionValue, useReducedMotion, useSpring } from 'framer-motion'
 
-const EASE = [0.21, 0.6, 0.35, 1] as const
+export const EASE = [0.16, 1, 0.3, 1] as const
+const VIEWPORT = { once: true, margin: '0px 0px -80px 0px' } as const
 
 /** Fades and lifts its children into place the first time they scroll into view. */
 export function Reveal({
   children,
   delay = 0,
-  y = 28,
+  y = 36,
   className,
 }: {
   children: ReactNode
@@ -22,16 +23,22 @@ export function Reveal({
     <motion.div
       data-reveal
       className={className}
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '0px 0px -80px 0px' }}
-      transition={{ duration: 0.7, delay, ease: EASE }}
+      initial={{ opacity: 0, y, scale: 0.98 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={VIEWPORT}
+      transition={{ duration: 1, delay, ease: EASE }}
     >
       {children}
     </motion.div>
   )
 }
 
+const headingItem = {
+  hidden: { opacity: 0, y: 22, filter: 'blur(10px)' },
+  show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.9, ease: EASE } },
+}
+
+/** Eyebrow, title and subtitle that focus in one after another. */
 export function SectionHeading({
   eyebrow,
   title,
@@ -44,13 +51,29 @@ export function SectionHeading({
   align?: 'center' | 'left'
 }) {
   return (
-    <Reveal className={align === 'center' ? 'mx-auto max-w-3xl text-center' : 'max-w-2xl'}>
-      <p className="eyebrow">{eyebrow}</p>
-      <h2 className="mt-4 font-display text-[clamp(1.9rem,4.2vw,3.25rem)] font-semibold leading-[1.06] tracking-tight">
+    <motion.div
+      className={align === 'center' ? 'mx-auto max-w-3xl text-center' : 'max-w-2xl'}
+      initial="hidden"
+      whileInView="show"
+      viewport={VIEWPORT}
+      transition={{ staggerChildren: 0.12 }}
+    >
+      <motion.p data-reveal variants={headingItem} className="eyebrow">
+        {eyebrow}
+      </motion.p>
+      <motion.h2
+        data-reveal
+        variants={headingItem}
+        className="mt-4 font-display text-[clamp(2rem,4.4vw,3.5rem)] font-semibold leading-[1.05] tracking-[-0.03em]"
+      >
         {title}
-      </h2>
-      {sub && <p className="mt-5 text-base leading-relaxed text-white/60 sm:text-lg">{sub}</p>}
-    </Reveal>
+      </motion.h2>
+      {sub && (
+        <motion.p data-reveal variants={headingItem} className="mt-5 text-base leading-relaxed text-white/60 sm:text-lg">
+          {sub}
+        </motion.p>
+      )}
+    </motion.div>
   )
 }
 
@@ -65,6 +88,47 @@ export function SpotlightCard({ children, className = '' }: { children: ReactNod
     <div onMouseMove={onMove} className={`glass spotlight group relative overflow-hidden rounded-2xl ${className}`}>
       {children}
     </div>
+  )
+}
+
+/** Tilts its children in 3D towards the cursor, springing back on leave. */
+export function Tilt({ children, className, max = 5 }: { children: ReactNode; className?: string; max?: number }) {
+  const rx = useSpring(useMotionValue(0), { stiffness: 160, damping: 18 })
+  const ry = useSpring(useMotionValue(0), { stiffness: 160, damping: 18 })
+  const onMove = (e: MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    ry.set(((e.clientX - rect.left) / rect.width - 0.5) * 2 * max)
+    rx.set(-((e.clientY - rect.top) / rect.height - 0.5) * 2 * max)
+  }
+  const reset = () => {
+    rx.set(0)
+    ry.set(0)
+  }
+  return (
+    <motion.div
+      className={className}
+      onMouseMove={onMove}
+      onMouseLeave={reset}
+      style={{ rotateX: rx, rotateY: ry, transformPerspective: 1100 }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+/** Reveals its children with a left-to-right wipe when scrolled into view. */
+export function Wipe({ children, className, delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
+  return (
+    <motion.div
+      data-reveal
+      className={className}
+      initial={{ clipPath: 'inset(0 100% 0 0)' }}
+      whileInView={{ clipPath: 'inset(0 0% 0 0)' }}
+      viewport={VIEWPORT}
+      transition={{ duration: 1.4, delay, ease: EASE }}
+    >
+      {children}
+    </motion.div>
   )
 }
 
@@ -83,8 +147,8 @@ export function Counter({ value, decimals = 0 }: { value: number; decimals?: num
     const el = ref.current
     if (!inView || reduce || !el) return
     const controls = animate(0, value, {
-      duration: 1.8,
-      ease: 'easeOut',
+      duration: 2.2,
+      ease: EASE,
       onUpdate: (v) => {
         el.textContent = format(v)
       },
